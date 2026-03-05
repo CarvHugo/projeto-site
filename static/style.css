@@ -4,7 +4,7 @@
 }
 
 body { 
-    background-image: url("../imagens/massa.jpg");
+    background-image: url("../static/imagens/massa.jpg");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
