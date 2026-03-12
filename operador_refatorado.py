@@ -13,7 +13,7 @@ def estrutura_de_menu(titulo):
     print(titulo.center(65))
     sleep(0.03)
     
-    if titulo not in ('\033[33mMENU PRINCIPAL\033[m', '\033[33mNOVO CADASTRO\033[m', '\033[33mALIMENTOS CADASTRADOS\033[m'):
+    if titulo not in ('\033[33mMENU PRINCIPAL\033[m', '\033[33mNOVO CADASTRO\033[m', '\033[33mALIMENTOS CADASTRADOS\033[m', '\033[31mDELEÇÃO DE REGISTROS\033[m'):
         print('-' * 58)
         sleep(0.03)
         print('ou')
@@ -81,6 +81,7 @@ def listagem():
         except KeyboardInterrupt:
             os.system('cls')
             print('O usuário encerrou o programa de forma manual.')
+            sys.exit()
             break
         
         else:
@@ -95,7 +96,7 @@ def listagem():
                 print('-' * 58)
                 retornar('manualmente')
             
-            if escolha == 2:
+            elif escolha == 2:
                 erro_cadastro = ''
                 while True:
                     estrutura_de_menu('\033[33mNOVO CADASTRO\033[m')
@@ -175,6 +176,7 @@ def listagem():
                     except KeyboardInterrupt:
                         os.system('cls')
                         print('O usuário encerrou o programa de forma manual.')
+                        sys.exit()
                     
                     else:
                         estrutura_de_menu('\033[33mNOVO CADASTRO\033[m')
@@ -200,24 +202,108 @@ def listagem():
                         sleep(0.03)
                         erro_cadastro = ''
                         
-                    confirmacao = str(input('Você confirma? [S/N] ')).upper().strip()
-                    
-                    if confirmacao == 'N':
+                    try:
+                        confirmacao = str(input('Você confirma? [S/N] ')).upper().strip()
+                        
+                    except KeyboardInterrupt:
                         os.system('cls')
-                        retornar()
-                        break
+                        print('O usuário encerrou o programa de forma manual.')
+                        sys.exit()
+                        
+                    else:
+                        if confirmacao == 'N':
+                            os.system('cls')
+                            retornar()
+                            break
+                        
+                        elif confirmacao =='S':
+                            cursor.execute(f"""INSERT INTO produtos (nome, categoria, preco)
+                            VALUES
+                            ('{nome_alimento}', '{categoria_alimento}', {preco_alimento});"""
+                            )       
+                            conexao.commit()
+                            sleep(0.03)
+                            print('\033[32mBanco de dados atualizado com sucesso!\033[m')
+                            sleep(0.03)
+                            retornar('manualmente')
+                            break
+
+            elif escolha == 3:
+                erro_delecao = ''
+                while True:
+                    estrutura_de_menu('\033[31mDELEÇÃO DE REGISTROS\033[m')
+                    def tela_delecao():
+                        print('\033[33mPara deletar um registro da tabela, digite o número ID do \nalimento desejado.\033[m')
+                        sleep(0.03)
+                        print('\nou')
+                        sleep(0.03)
+                        print('\n\033[34mDigite ENTER para voltar ao MENU PRINCIPAL.\033[m')
+                        sleep(0.03)
+                        print('-' * 58)
+                    tela_delecao()
+                
+                    if erro_delecao:
+                        print(erro_delecao)
+                        erro_delecao = ''
                     
-                    elif confirmacao =='S':
-                        cursor.execute(f"""INSERT INTO produtos (nome, categoria, preco)
-                        VALUES
-                        ('{nome_alimento}', '{categoria_alimento}', {preco_alimento});"""
-                        )       
-                        conexao.commit()
-                        sleep(0.03)
-                        print('\033[32mBanco de dados atualizado com sucesso!\033[m')
-                        sleep(0.03)
-                        retornar('manualmente')
-                        break
-
-
+                    try:
+                        numero_id = input('ID ou ENTER: ').strip()
+                        
+                        if numero_id == '':
+                            os.system('cls')
+                            retornar()
+                            break
+                        
+                        elif numero_id.isnumeric():
+                            numero_id = int(numero_id)
+                            
+                        else:
+                            raise ValueError
+                    
+                    except ValueError:
+                        erro_delecao = '\033[31mDigite apenas o ID desejado ou ENTER\033[m'
+                    
+                    except KeyboardInterrupt:
+                        os.system('cls')
+                        print('O usuário encerrou o programa de forma manual.')
+                        sys.exit()
+                    
+                    else:
+                        cursor.execute(f"""SELECT id FROM produtos WHERE id = {numero_id};""")
+                        resultado = cursor.fetchone()
+                        if resultado is None:
+                            erro_delecao = f'\033[31mID {numero_id} não cadastrado\033[m'
+                        
+                        else:
+                            confirmacao = None
+                            while True:
+                                estrutura_de_menu('\033[31mDELEÇÃO DE REGISTROS\033[m')
+                                tela_delecao()
+                                print(f'ID: {numero_id}')
+                                if confirmacao not in('S', 'N', None):
+                                    erro_delecao = '\033[31mDigite apenas S ou N.\033[m'
+                                    print(erro_delecao)
+                                    sleep(0.03)
+                                    erro_delecao = ''
+                        
+                                try:
+                                    confirmacao = str(input('Você confirma? [S/N] ')).upper().strip()
+                                    
+                                except KeyboardInterrupt:
+                                    os.system('cls')
+                                    print('O usuário encerrou o programa de forma manual.')
+                                    sys.exit()
+                                    
+                                else:
+                                    if confirmacao == 'N':
+                                        os.system('cls')
+                                        retornar()
+                                        break
+                                    
+                                    elif confirmacao =='S': 
+                                        cursor.execute(f"""DELETE FROM produtos WHERE id = {numero_id};""")
+                                        conexao.commit()
+                                        print('\n\033[32mProduto deletado!\033[m')
+                                        retornar('manualmente')
+                                        break
 listagem()
