@@ -271,39 +271,49 @@ def listagem():
                     else:
                         cursor.execute(f"""SELECT id FROM produtos WHERE id = {numero_id};""")
                         resultado = cursor.fetchone()
+                        
                         if resultado is None:
                             erro_delecao = f'\033[31mID {numero_id} não cadastrado\033[m'
                         
                         else:
-                            confirmacao = None
-                            while True:
-                                estrutura_de_menu('\033[31mDELEÇÃO DE REGISTROS\033[m')
-                                tela_delecao()
-                                print(f'ID: {numero_id}')
-                                if confirmacao not in('S', 'N', None):
-                                    erro_delecao = '\033[31mDigite apenas S ou N.\033[m'
-                                    print(erro_delecao)
-                                    sleep(0.03)
-                                    erro_delecao = ''
+                            estrutura_de_menu('\033[31mDELEÇÃO DE REGISTROS\033[m')
+                            tela_delecao()
+                            print(f'ID: {numero_id}')
+                            break
+                
+                confirmacao = None            
+                while True:
+                    if numero_id == '':
+                        break
+                    estrutura_de_menu('\033[31mDELEÇÃO DE REGISTROS\033[m')
+                    tela_delecao()
+                    print(f'ID: {numero_id}')        
+                    
+                    
+                    if confirmacao not in('S', 'N', None):
+                        erro_delecao = '\033[31mDigite apenas S ou N.\033[m'
+                        print(erro_delecao)
+                        sleep(0.03)
+                        erro_delecao = ''
+            
+                    try:
+                        confirmacao = str(input('Você confirma? [S/N] ')).upper().strip()
                         
-                                try:
-                                    confirmacao = str(input('Você confirma? [S/N] ')).upper().strip()
-                                    
-                                except KeyboardInterrupt:
-                                    os.system('cls')
-                                    print('O usuário encerrou o programa de forma manual.')
-                                    sys.exit()
-                                    
-                                else:
-                                    if confirmacao == 'N':
-                                        os.system('cls')
-                                        retornar()
-                                        break
-                                    
-                                    elif confirmacao =='S': 
-                                        cursor.execute(f"""DELETE FROM produtos WHERE id = {numero_id};""")
-                                        conexao.commit()
-                                        print('\n\033[32mProduto deletado!\033[m')
-                                        retornar('manualmente')
-                                        break
+                    except KeyboardInterrupt:
+                        os.system('cls')
+                        print('O usuário encerrou o programa de forma manual.')
+                        sys.exit()
+                        
+                    else:
+                        if confirmacao == 'N':
+                            os.system('cls')
+                            retornar()
+                            break
+                        
+                        elif confirmacao =='S': 
+                            cursor.execute(f"""DELETE FROM produtos WHERE id = {numero_id};""")
+                            conexao.commit()
+                            print('\n\033[32mProduto deletado!\033[m')
+                            retornar('manualmente')
+                            break
 listagem()
