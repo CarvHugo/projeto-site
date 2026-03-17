@@ -316,4 +316,17 @@ def listagem():
                             print('\n\033[32mProduto deletado!\033[m')
                             retornar('manualmente')
                             break
+            
+            elif escolha == 5:
+                os.system('cls')
+                print('-' * 58)
+                sleep(0.03)
+                for ciclo in range(6):
+                    for pontos in range(4):
+                        print(f'\r\033[34mSaindo do sistema{"." * pontos} \033[m', end='', flush=True)
+                        sleep(0.07)
+                print('\r\033[34mSaindo do sistema... Até logo!\033[m')
+                sleep(0.7)
+                print('-' * 58)
+                break
 listagem()
