@@ -11,16 +11,7 @@ def estrutura_de_menu(titulo):
     print('-' * 58)
     sleep(0.03)
     print(titulo.center(65))
-    sleep(0.03)
-    
-    if titulo not in ('\033[33mMENU PRINCIPAL\033[m', '\033[33mNOVO CADASTRO\033[m', '\033[33mALIMENTOS CADASTRADOS\033[m', '\033[31mDELEÇÃO DE REGISTROS\033[m'):
-        print('-' * 58)
-        sleep(0.03)
-        print('ou')
-        sleep(0.03)
-        print('\033[34mPressione ENTER para voltar\033[m')
-        sleep(0.03)
-        
+    sleep(0.03)     
     print('-' * 58)
     sleep(0.03)
 
@@ -30,6 +21,12 @@ opcoes_menu_principal = [
     'Deletar registro.',
     'Editar registro.',
     'Sair do sistema.'
+]
+
+opcoes_menu_edicao = [
+    'Editar preço.',
+    'Editar nome.',
+    'Editar categoria.'
 ]
     
 def mostrar_opcoes(opcoes):
@@ -168,6 +165,10 @@ def listagem():
                     try:
                         preco_alimento = str(input('Preço: R$ ')).replace(',', '.')
                         preco_alimento = float(preco_alimento)
+                        
+                        if preco_alimento < 0:
+                            erro_cadastro = '\033[31mDigite um preço maior que zero!\033[m'
+                            continue
                     
                     except ValueError:
                         erro_cadastro = '\033[31mDigite apenas números!\033[m'
@@ -316,6 +317,126 @@ def listagem():
                             print('\n\033[32mProduto deletado!\033[m')
                             retornar('manualmente')
                             break
+            
+            elif escolha == 4:
+                erro_menu_edicao = ''
+                erro_preco = ''
+                while True:
+                    estrutura_de_menu('\033[33mEDIÇÃO DE REGISTROS\033[m')
+                    mostrar_opcoes(opcoes_menu_edicao)
+                    
+                    if erro_menu_edicao:
+                        sleep(0.03)
+                        print(erro_menu_edicao)
+                        sleep(0.03)
+                    
+                        erro_menu_edicao = ''
+
+                    try:
+                        escolha_edicao = str(input('\033[32mSua Opção: \033[m'))
+                        
+                        if escolha_edicao == '':
+                            os.system('cls')
+                            retornar()
+                            break
+                            
+                        
+                        escolha_edicao = int(escolha_edicao)
+
+                        if 1 > escolha_edicao or escolha_edicao > 3:
+                            os.system('cls')
+                            erro_menu_edicao = '\033[31mEscolha um número inteiro válido de "1" a "3".\033[m'
+                        
+                    
+                    except ValueError:
+                        os.system('cls')
+                        erro_menu_edicao = '\033[31mDigite um número inteiro!\033[m'
+                    
+                    except KeyboardInterrupt:
+                        os.system('cls')
+                        print('O usuário encerrou o programa de forma manual.')
+                        sys.exit()
+                        
+                    else:
+                        if escolha_edicao == 1:
+                            while True:
+                                estrutura_de_menu('\033[33mEDIÇÃO DE PREÇO\033[m')
+                                def tela_preco():
+                                    print('\033[34mPara editar o preço, digite o número ID do alimento\033[m')
+                                    print('ou')
+                                    print('\033[34mDigite ENTER para voltar\033[m')
+                                    print('-' * 58)
+                                tela_preco()
+                                
+                                if erro_preco:
+                                    print(erro_preco)
+                                    erro_preco = ''
+                        
+                                try:
+                                    numero_id = input('ID ou ENTER: ').strip()
+                                    
+                                    if numero_id == '':
+                                        os.system('cls')
+                                        retornar()
+                                        break
+                                    
+                                    elif numero_id.isnumeric():
+                                        numero_id = int(numero_id)
+                                        
+                                    else:
+                                        raise ValueError
+                                
+                                except ValueError:
+                                    erro_preco = '\033[31mDigite apenas o ID desejado ou ENTER\033[m'
+                                
+                                except KeyboardInterrupt:
+                                    os.system('cls')
+                                    print('O usuário encerrou o programa de forma manual.')
+                                    sys.exit()
+                                    
+                                else:
+                                    cursor.execute(f"""
+                                                   SELECT id FROM produtos WHERE id = {numero_id};
+                                                   """)
+                                    resultado = cursor.fetchone()
+                                    if resultado != None:
+                                        break
+                                    erro_preco = f'\033[31mID {numero_id} não cadastrado\033[m'
+                                    erro_preco = ''
+                            
+                                while True:
+                                    estrutura_de_menu('\033[33mEDIÇÃO DE PREÇO\033[m')
+                                    tela_preco()
+                                    print(f'ID: {numero_id}')
+                                    cursor.execute(f"""
+                                                    SELECT nome, preco FROM produtos
+                                                    WHERE id = {numero_id};
+                                                    """)
+                                    row = cursor.fetchone()
+                                    nome, preco = row
+                                    print(f'Alimento: {nome}\nPreço: R${preco:.2f}')
+                                    if erro_preco:
+                                        print(erro_preco)
+                                        erro_preco = ''
+                                    
+                                    try:
+                                        novo_preco = str(input('Novo preço: R$ ')).replace(',', '.')
+                                        novo_preco = float(novo_preco)
+                                        
+                                        if novo_preco < 0:
+                                            erro_preco = '\033[31mDigite um preço maior que zero\033[m'
+                                            continue
+                                    
+                                    except ValueError:
+                                        erro_preco = '\033[31mDigite apenas números!\033[m'
+
+                                    except KeyboardInterrupt:
+                                        os.system('cls')
+                                        print('O usuário encerrou o programa de forma manual.')
+                                        sys.exit()
+                                    
+                                    else:
+                                        retornar('manualmente')
             
             elif escolha == 5:
                 os.system('cls')
