@@ -340,7 +340,6 @@ def listagem():
                             retornar()
                             break
                             
-                        
                         escolha_edicao = int(escolha_edicao)
 
                         if 1 > escolha_edicao or escolha_edicao > 3:
@@ -380,14 +379,11 @@ def listagem():
                                         retornar()
                                         break
                                     
-                                    elif numero_id.isnumeric():
-                                        numero_id = int(numero_id)
-                                        
-                                    else:
-                                        raise ValueError
-                                
+                                    numero_id = int(numero_id)
+                                                                    
                                 except ValueError:
                                     erro_preco = '\033[31mDigite apenas o ID desejado ou ENTER\033[m'
+                                    continue
                                 
                                 except KeyboardInterrupt:
                                     os.system('cls')
@@ -399,28 +395,34 @@ def listagem():
                                                    SELECT id FROM produtos WHERE id = {numero_id};
                                                    """)
                                     resultado = cursor.fetchone()
-                                    if resultado != None:
-                                        break
-                                    erro_preco = f'\033[31mID {numero_id} não cadastrado\033[m'
+                                    
+                                    if resultado is None:
+                                        erro_preco = f'\033[31mID {numero_id} não cadastrado\033[m'
+                                        continue
                                     erro_preco = ''
                             
                                 while True:
                                     estrutura_de_menu('\033[33mEDIÇÃO DE PREÇO\033[m')
                                     tela_preco()
-                                    print(f'ID: {numero_id}')
-                                    cursor.execute(f"""
-                                                    SELECT nome, preco FROM produtos
-                                                    WHERE id = {numero_id};
-                                                    """)
-                                    row = cursor.fetchone()
-                                    nome, preco = row
-                                    print(f'Alimento: {nome}\nPreço: R${preco:.2f}')
+                                    if resultado is not None:
+                                        print(f'ID: {numero_id}')
+                                        cursor.execute(f"""
+                                                        SELECT nome, preco FROM produtos
+                                                        WHERE id = {numero_id};
+                                                        """)
+                                        row = cursor.fetchone()
+                                        nome, preco = row
+                                        print(f'Alimento: {nome}\nPreço: R${preco:.2f}')
                                     if erro_preco:
                                         print(erro_preco)
                                         erro_preco = ''
                                     
                                     try:
                                         novo_preco = str(input('Novo preço: R$ ')).replace(',', '.')
+                                        
+                                        if novo_preco == '':
+                                            break
+                                        
                                         novo_preco = float(novo_preco)
                                         
                                         if novo_preco < 0:
@@ -436,8 +438,15 @@ def listagem():
                                         sys.exit()
                                     
                                     else:
+                                        cursor.execute(f"""
+                                                       UPDATE produtos SET preco = {novo_preco}
+                                                       WHERE id = {numero_id};""")
+                                        conexao.commit()
+                                        print('\033[32mPreço atualizado!\033[m')
                                         retornar('manualmente')
-            
+                                        break
+                                break
+                            
             elif escolha == 5:
                 os.system('cls')
                 print('-' * 58)
@@ -450,4 +459,3 @@ def listagem():
                 sleep(0.7)
                 print('-' * 58)
                 break
-listagem()
