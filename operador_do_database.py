@@ -20,6 +20,7 @@ opcoes_menu_principal = [
     'Cadastrar novo alimento.',
     'Deletar registro.',
     'Editar registro.',
+    'Informações.',
     'Sair do sistema.'
 ]
 
@@ -67,9 +68,9 @@ def listagem():
         try:
             escolha = int(input('\033[32mSua Opção: \033[m'))
             
-            if 1 > escolha or escolha > 5:
+            if 1 > escolha or escolha > 6:
                 os.system('cls')
-                erro_menu = '\033[31mEscolha um número inteiro válido de "1" a "5".\033[m'
+                erro_menu = '\033[31mEscolha um número inteiro válido de "1" a "6".\033[m'
         
         except ValueError:
             os.system('cls')
@@ -241,10 +242,12 @@ def listagem():
                         print('\n\033[34mDigite ENTER para voltar ao MENU PRINCIPAL.\033[m')
                         sleep(0.03)
                         print('-' * 58)
+                        sleep(0.03)
                     tela_delecao()
                 
                     if erro_delecao:
                         print(erro_delecao)
+                        sleep(0.03)
                         erro_delecao = ''
                     
                     try:
@@ -288,7 +291,8 @@ def listagem():
                         break
                     estrutura_de_menu('\033[31mDELEÇÃO DE REGISTROS\033[m')
                     tela_delecao()
-                    print(f'ID: {numero_id}')        
+                    print(f'ID: {numero_id}')
+                    sleep(0.03)       
                     
                     
                     if confirmacao not in('S', 'N', None):
@@ -362,13 +366,18 @@ def listagem():
                                 estrutura_de_menu('\033[33mEDIÇÃO DE PREÇO\033[m')
                                 def tela_preco():
                                     print('\033[34mPara editar o preço, digite o número ID do alimento\033[m')
+                                    sleep(0.03)
                                     print('ou')
-                                    print('\033[34mDigite ENTER para voltar\033[m')
+                                    sleep(0.03)
+                                    print('\033[34mPressione ENTER para voltar\033[m')
+                                    sleep(0.03)
                                     print('-' * 58)
+                                    sleep(0.03)
                                 tela_preco()
                                 
                                 if erro_preco:
                                     print(erro_preco)
+                                    sleep(0.03)
                                     erro_preco = ''
                         
                                 try:
@@ -412,10 +421,13 @@ def listagem():
                                                         """)
                                         row = cursor.fetchone()
                                         nome, preco = row
+                                        sleep(0.03)
                                         print(f'Alimento: {nome}\nPreço: R${preco:.2f}')
                                     if erro_preco:
+                                        sleep(0.03)
                                         print(erro_preco)
                                         erro_preco = ''
+                                        sleep(0.03)
                                     
                                     try:
                                         novo_preco = str(input('Novo preço: R$ ')).replace(',', '.')
@@ -442,12 +454,219 @@ def listagem():
                                                        UPDATE produtos SET preco = {novo_preco}
                                                        WHERE id = {numero_id};""")
                                         conexao.commit()
+                                        sleep(0.03)
                                         print('\033[32mPreço atualizado!\033[m')
+                                        retornar('manualmente')
+                                        break
+                                break
+                        
+                        erro_nome = ''
+                        if escolha_edicao == 2:
+                            while True:
+                                estrutura_de_menu('\033[33mEDIÇÃO DE NOME\033[m')
+                                def tela_nome():
+                                    print('\033[34mPara editar o nome, digite o número ID do alimento\033[m')
+                                    sleep(0.03)
+                                    print('ou')
+                                    sleep(0.03)
+                                    print('\033[34mPressione ENTER para voltar\033[m')
+                                    sleep(0.03)
+                                    print('-' * 58)
+                                    sleep(0.03)
+                                tela_nome()
+                                
+                                if erro_nome:
+                                    print(erro_nome)
+                                    erro_nome = ''
+                                    sleep(0.03)
+                        
+                                try:
+                                    numero_id = input('ID ou ENTER: ').strip()
+                                    
+                                    if numero_id == '':
+                                        os.system('cls')
+                                        retornar()
+                                        break
+                                    
+                                    numero_id = int(numero_id)
+                                                                    
+                                except ValueError:
+                                    erro_nome = '\033[31mDigite apenas o ID desejado ou ENTER\033[m'
+                                    continue
+                                
+                                except KeyboardInterrupt:
+                                    os.system('cls')
+                                    print('O usuário encerrou o programa de forma manual.')
+                                    sys.exit()
+                                    
+                                else:
+                                    cursor.execute(f"""
+                                                   SELECT id FROM produtos WHERE id = {numero_id};
+                                                   """)
+                                    resultado = cursor.fetchone()
+                                    
+                                    if resultado is None:
+                                        erro_nome = f'\033[31mID {numero_id} não cadastrado\033[m'
+                                        continue
+                                    erro_nome = ''
+                            
+                                while True:
+                                    estrutura_de_menu('\033[33mEDIÇÃO DE NOME\033[m')
+                                    tela_nome()
+                                    if resultado is not None:
+                                        print(f'ID: {numero_id}')
+                                        cursor.execute(f"""
+                                                        SELECT nome FROM produtos
+                                                        WHERE id = {numero_id};
+                                                        """)
+                                        row = cursor.fetchone()
+                                        nome, = row
+                                        sleep(0.03)
+                                        print(f'Alimento: {nome}')
+                                    if erro_nome:
+                                        sleep(0.03)
+                                        print(erro_nome)
+                                        erro_nome = ''
+                                        sleep(0.03)
+                                    
+                                    try:
+                                        novo_nome = input('Novo nome: ')
+                                        
+                                        if novo_nome == '':
+                                            break
+                                    
+                                        if not novo_nome.isalpha:
+                                            raise ValueError
+                                    
+                                    except ValueError:
+                                        erro_preco = '\033[31mDigite apenas caracteres alfabéticos!\033[m'
+                                        continue
+
+                                    except KeyboardInterrupt:
+                                        os.system('cls')
+                                        print('O usuário encerrou o programa de forma manual.')
+                                        sys.exit()
+                                    
+                                    else:
+                                        cursor.execute(f"""
+                                                       UPDATE produtos SET nome = "{novo_nome}"
+                                                       WHERE id = {numero_id};""")
+                                        conexao.commit()
+                                        sleep(0.03)
+                                        print('\033[32mNome atualizado!\033[m')
+                                        retornar('manualmente')
+                                        break
+                                break
+                        
+                        erro_categoria = ''
+                        if escolha_edicao == 3:
+                            while True:
+                                estrutura_de_menu('\033[33mEDIÇÃO DE CATEGORIA\033[m')
+                                def tela_categoria():
+                                    print('\033[34mPara editar a categoria, digite o número ID do alimento\033[m')
+                                    sleep(0.03)
+                                    print('ou')
+                                    sleep(0.03)
+                                    print('\033[34mPressione ENTER para voltar\033[m')
+                                    sleep(0.03)
+                                    print('-' * 58)
+                                    sleep(0.03)
+                                tela_categoria()
+                                
+                                if erro_categoria:
+                                    print(erro_categoria)
+                                    erro_categoria = ''
+                                    sleep(0.03)
+                        
+                                try:
+                                    numero_id = input('ID ou ENTER: ').strip()
+                                    
+                                    if numero_id == '':
+                                        os.system('cls')
+                                        retornar()
+                                        break
+                                    
+                                    numero_id = int(numero_id)
+                                                                    
+                                except ValueError:
+                                    erro_categoria = '\033[31mDigite apenas o ID desejado ou ENTER\033[m'
+                                    continue
+                                
+                                except KeyboardInterrupt:
+                                    os.system('cls')
+                                    print('O usuário encerrou o programa de forma manual.')
+                                    sys.exit()
+                                    
+                                else:
+                                    cursor.execute(f"""
+                                                   SELECT id FROM produtos WHERE id = {numero_id};
+                                                   """)
+                                    resultado = cursor.fetchone()
+                                    
+                                    if resultado is None:
+                                        erro_categoria = f'\033[31mID {numero_id} não cadastrado\033[m'
+                                        continue
+                                    erro_nome = ''
+                            
+                                while True:
+                                    estrutura_de_menu('\033[33mEDIÇÃO DE CATEGORIA\033[m')
+                                    tela_categoria()
+                                    if resultado is not None:
+                                        print(f'ID: {numero_id}')
+                                        sleep(0.03)
+                                        cursor.execute(f"""
+                                                        SELECT nome, categoria FROM produtos
+                                                        WHERE id = {numero_id};
+                                                        """)
+                                        row = cursor.fetchone()
+                                        nome, categoria = row
+                                        print(f'Alimento: {nome}\nCategoria: {categoria}')
+                                        sleep(0.03)
+                                    if erro_categoria:
+                                        print(erro_categoria)
+                                        erro_categoria = ''
+                                        sleep(0.03)
+                                    
+                                    try:
+                                        nova_categoria = input('Nova categoria: ')
+                                        
+                                        if nova_categoria == '':
+                                            break
+                                    
+                                    except ValueError:
+                                        erro_categoria = '\033[31mDigite apenas caracteres alfabéticos!\033[m'
+
+                                    except KeyboardInterrupt:
+                                        os.system('cls')
+                                        print('O usuário encerrou o programa de forma manual.')
+                                        sys.exit()
+                                    
+                                    else:
+                                        cursor.execute(f"""
+                                                       UPDATE produtos SET categoria = "{nova_categoria}"
+                                                       WHERE id = {numero_id};""")
+                                        conexao.commit()
+                                        sleep(0.03)
+                                        print('\033[32mCategoria atualizada!\033[m')
                                         retornar('manualmente')
                                         break
                                 break
                             
             elif escolha == 5:
+                estrutura_de_menu('\033[33mINFORMAÇÕES DO PROGRAMA\033[m')
+                print('Sistema de cardápio virtual feito para agilizar a sua')
+                sleep(0.03)
+                print('logística empresarial.')
+                sleep(0.03)
+                print('\nDesenvolvido por Hugo Carvalho')
+                sleep(0.03)
+                print('\nE-mail: hugoncarv@gmail.com')
+                sleep(0.03)
+                print('Telefone (também WhatsApp): +55(21)97401-2985')
+                sleep(0.03)
+                retornar('manualmente')
+                
+            elif escolha == 6:
                 os.system('cls')
                 print('-' * 58)
                 sleep(0.03)
