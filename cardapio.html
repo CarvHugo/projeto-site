@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cardápio</title>
+</head>
+<body onload="buscar()">
+
+    <h1>Cardápio</h1>
+
+    <div id="cardapio"></div>
+
+    <script>
+        async function buscar() {
+            const resposta = await fetch("http://127.0.0.1:8000/produtos");
+            const dados = await resposta.json();
+
+            const div = document.getElementById("cardapio");
+            div.innerHTML = "";
+
+            dados.forEach(item => {
+                div.innerHTML += `
+                    <p>
+                        <strong>${item.nome}</strong><br>
+                        Categoria: ${item.categoria}<br>
+                        Preço: R$ ${Number(item.preco).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </p>
+                `;
+            });
+        }
+    </script>
+
+</body>
+</html>
+</body>
+</html>

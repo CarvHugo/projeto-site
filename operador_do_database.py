@@ -535,7 +535,7 @@ def listagem():
                                         if novo_nome == '':
                                             break
                                     
-                                        if not novo_nome.isalpha:
+                                        if not novo_nome.isalpha():
                                             raise ValueError
                                     
                                     except ValueError:
