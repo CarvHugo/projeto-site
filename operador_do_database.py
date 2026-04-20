@@ -2,6 +2,7 @@ import sqlite3
 import os
 from time import sleep
 import sys
+from api_client import obter_lista_do_cardapio
 
 conexao = sqlite3.connect("cardapio.db")
 cursor = conexao.cursor()
@@ -85,13 +86,7 @@ def listagem():
         else:
             if escolha == 1:
                 estrutura_de_menu('\033[33mALIMENTOS CADASTRADOS\033[m')
-                cursor.execute("""SELECT * FROM produtos;""")
-                rows = cursor.fetchall()
-                print(f' {"ID":<5} {"Nome":<26} {"Categoria":<15} {"Preço":<10}')
-                for id, nome, categoria, preco in rows:
-                    print(f' {id:<5} {nome:<26} {categoria:<15}R$ {preco:<10.2f}')
-                    sleep(0.03)
-                print('-' * 58)
+                obter_lista_do_cardapio()
                 retornar('manualmente')
             
             elif escolha == 2:
