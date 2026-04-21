@@ -18,3 +18,23 @@ def obter_lista_do_cardapio():
         
     else:
         print("Ocorreu um erro ao buscar os produtos!")
+
+def cadastrar_produto(nome, categoria, preco):
+    url_base = "http://127.0.0.1:8000"
+    
+    resposta = requests.post(
+        url_base + "/produtos",
+        
+        json={
+            "nome": nome,
+            "categoria": categoria,
+            "preco": preco
+        }
+    )
+    
+    if resposta.status_code in (200,201):
+        return True
+    
+    else:
+        print('Erro ao cadastrar produto.')
+        return False

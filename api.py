@@ -1,6 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import sqlite3
+from pydantic import BaseModel
+
+class Produto(BaseModel):
+    nome: str
+    categoria: str
+    preco: float
 
 app = FastAPI()
 
@@ -31,3 +37,15 @@ async def listar_produtos():
         })
 
     return lista_produtos
+
+@app.post("/produtos")
+async def validacao_de_produtos(produto: Produto):
+    conexao = sqlite3.connect("cardapio.db")
+    cursor = conexao.cursor()
+    
+    cursor.execute("INSERT INTO produtos (nome, categoria, preco) VALUES (?, ?, ?)", (produto.nome, produto.categoria, produto.preco))
+    
+    conexao.commit()
+    conexao.close()
+    
+    return produto
