@@ -2,7 +2,7 @@ import sqlite3
 import os
 from time import sleep
 import sys
-from api_client import obter_lista_do_cardapio
+from api_client import obter_lista_do_cardapio, cadastrar_produto
 
 conexao = sqlite3.connect("cardapio.db")
 cursor = conexao.cursor()
@@ -162,7 +162,7 @@ def listagem():
                         preco_alimento = str(input('Preço: R$ ')).replace(',', '.')
                         preco_alimento = float(preco_alimento)
                         
-                        if preco_alimento < 0:
+                        if preco_alimento <= 0:
                             erro_cadastro = '\033[31mDigite um preço maior que zero!\033[m'
                             continue
                     
@@ -214,13 +214,8 @@ def listagem():
                             break
                         
                         elif confirmacao =='S':
-                            cursor.execute(f"""INSERT INTO produtos (nome, categoria, preco)
-                            VALUES
-                            ('{nome_alimento}', '{categoria_alimento}', {preco_alimento});"""
-                            )       
-                            conexao.commit()
-                            sleep(0.03)
-                            print('\033[32mBanco de dados atualizado com sucesso!\033[m')
+                            resultado = cadastrar_produto(nome_alimento, categoria_alimento, preco_alimento)
+                            print(resultado)
                             sleep(0.03)
                             retornar('manualmente')
                             break

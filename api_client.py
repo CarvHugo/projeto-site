@@ -33,8 +33,7 @@ def cadastrar_produto(nome, categoria, preco):
     )
     
     if resposta.status_code in (200,201):
-        return True
+        return (f'HTTP {resposta.status_code}')
     
     else:
-        print('Erro ao cadastrar produto.')
-        return False
+        return (resposta.json())

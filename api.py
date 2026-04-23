@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import sqlite3
 from pydantic import BaseModel
@@ -39,13 +39,19 @@ async def listar_produtos():
     return lista_produtos
 
 @app.post("/produtos")
-async def validacao_de_produtos(produto: Produto):
-    conexao = sqlite3.connect("cardapio.db")
-    cursor = conexao.cursor()
+async def cadastro_de_produtos(produto: Produto):
+    produto.nome = produto.nome.strip()
+    produto.categoria = produto.categoria.strip()
     
-    cursor.execute("INSERT INTO produtos (nome, categoria, preco) VALUES (?, ?, ?)", (produto.nome, produto.categoria, produto.preco))
+    if produto.nome != "" and produto.categoria != "" and produto.preco > 0:
+        conexao = sqlite3.connect("cardapio.db")
+        cursor = conexao.cursor()
+        
+        cursor.execute("INSERT INTO produtos (nome, categoria, preco) VALUES (?, ?, ?)", (produto.nome, produto.categoria, produto.preco))
+
+        conexao.commit()
+        conexao.close()
+
+        return produto
     
-    conexao.commit()
-    conexao.close()
-    
-    return produto
+    raise HTTPException(status_code=422, detail="Ocorreu um erro com a validação dos dados! Digite dados válidos para cadastro.")
