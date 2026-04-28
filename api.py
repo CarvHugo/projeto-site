@@ -2,11 +2,17 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import sqlite3
 from pydantic import BaseModel
+from typing import Optional
 
 class Produto(BaseModel):
     nome: str
     categoria: str
     preco: float
+
+class ProdutoPatch(BaseModel):
+    nome: Optional[str] = None
+    categoria: Optional[str] = None
+    preco: Optional[float] = None
 
 app = FastAPI()
 
@@ -74,3 +80,23 @@ async def delecao_de_produtos(id: int):
     conexao.close()
     
     raise HTTPException(status_code=404, detail=f"Deleção falhou! O produto de ID {id} não foi encontrado.")
+
+@app.patch("/produtos/{id}")
+async def atualizar_produto(id: int, produtopatch: ProdutoPatch):
+    conexao = sqlite3.connect("cardapio.db")
+    cursor = conexao.cursor()
+    
+    if produtopatch.nome is not None:
+        cursor.execute("UPDATE produtos SET nome = ? WHERE id = ?", (produtopatch.nome, id))
+    
+    elif produtopatch.categoria is not None:
+        cursor.execute("UPDATE produtos SET categoria = ? WHERE id = ?", (produtopatch.categoria, id))
+    elif produtopatch.preco is not None:
+        cursor.execute("UPDATE produtos SET preco = ? WHERE id = ?", (produtopatch.preco, id))
+    
+    else:
+        conexao.close()
+        return "Ocorreu um erro!"
+    
+    conexao.commit()
+    conexao.close()
