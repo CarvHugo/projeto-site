@@ -2,7 +2,7 @@ import sqlite3
 import os
 from time import sleep
 import sys
-from api_client import obter_lista_do_cardapio, cadastrar_produto, deletar_produto
+from api_client import obter_lista_do_cardapio, cadastrar_produto, deletar_produto, atualizar_produto, consultar_produto
 
 conexao = sqlite3.connect("cardapio.db")
 cursor = conexao.cursor()
@@ -394,13 +394,10 @@ def listagem():
                                     sys.exit()
                                     
                                 else:
-                                    cursor.execute(f"""
-                                                   SELECT id FROM produtos WHERE id = {numero_id};
-                                                   """)
-                                    resultado = cursor.fetchone()
+                                    resultado = consultar_produto(numero_id)
                                     
-                                    if resultado is None:
-                                        erro_preco = f'\033[31mID {numero_id} não cadastrado\033[m'
+                                    if isinstance(resultado, str):
+                                        erro_preco = resultado
                                         continue
                                     erro_preco = ''
                             
@@ -444,12 +441,7 @@ def listagem():
                                         sys.exit()
                                     
                                     else:
-                                        cursor.execute(f"""
-                                                       UPDATE produtos SET preco = {novo_preco}
-                                                       WHERE id = {numero_id};""")
-                                        conexao.commit()
-                                        sleep(0.03)
-                                        print('\033[32mPreço atualizado!\033[m')
+                                        atualizar_produto(id=numero_id, preco=novo_preco)
                                         retornar('manualmente')
                                         break
                                 break

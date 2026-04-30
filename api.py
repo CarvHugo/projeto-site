@@ -110,3 +110,24 @@ async def atualizar_produto(id: int, produtopatch: ProdutoPatch):
     
     conexao.commit()
     conexao.close()
+    
+@app.get("/produtos/{id}")
+async def consultar_produto(id: int):
+    conexao = sqlite3.connect("cardapio.db")
+    cursor = conexao.cursor()
+    
+    cursor.execute("SELECT nome, categoria, preco FROM produtos WHERE id = ?;", (id,))
+    produto = cursor.fetchone()
+    
+    if produto:
+        nome, categoria, preco = produto
+        dados = {}
+        
+        dados['Nome'] = nome
+        dados['Categoria'] = categoria
+        dados['Preço'] = preco
+        
+        return dados
+    
+    else:
+        raise HTTPException(status_code=404, detail=f'Número de ID {id} não encontrado!')
