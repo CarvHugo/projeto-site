@@ -90,20 +90,21 @@ async def atualizar_produto(id: int, produtopatch: ProdutoPatch):
         conexao.close()
         raise HTTPException(status_code=422, detail="É necessário fornecer algum dado para atualização!")
     
+    linhas_afetadas = 0
         
     if produtopatch.nome is not None:
         cursor.execute("UPDATE produtos SET nome = ? WHERE id = ?", (produtopatch.nome, id))
-        verificador_de_nome = cursor.rowcount
+        linhas_afetadas += cursor.rowcount
             
     if produtopatch.categoria is not None:
         cursor.execute("UPDATE produtos SET categoria = ? WHERE id = ?", (produtopatch.categoria, id))
-        verificador_de_categoria = cursor.rowcount
+        linhas_afetadas += cursor.rowcount
             
     if produtopatch.preco is not None:
         cursor.execute("UPDATE produtos SET preco = ? WHERE id = ?", (produtopatch.preco, id))
-        verificador_de_preco = cursor.rowcount
+        linhas_afetadas += cursor.rowcount
     
-    if (verificador_de_nome + verificador_de_categoria + verificador_de_preco == 0):
+    if linhas_afetadas == 0:
         conexao.close()
         raise HTTPException(status_code=404, detail=f"Erro! ID {id} não encontrado.")
     
