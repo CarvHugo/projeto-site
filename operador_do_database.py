@@ -394,26 +394,22 @@ def listagem():
                                     sys.exit()
                                     
                                 else:
-                                    resultado = consultar_produto(numero_id)
+                                    resultado_da_consulta = consultar_produto(numero_id)
                                     
-                                    if isinstance(resultado, str):
-                                        erro_preco = resultado
+                                    if isinstance(resultado_da_consulta, str):
+                                        erro_preco = resultado_da_consulta
                                         continue
                                     erro_preco = ''
                             
                                 while True:
                                     estrutura_de_menu('\033[33mEDIÇÃO DE PREÇO\033[m')
                                     tela_preco()
-                                    if resultado is not None:
+                                    if isinstance(resultado_da_consulta, dict):
                                         print(f'ID: {numero_id}')
-                                        cursor.execute(f"""
-                                                        SELECT nome, preco FROM produtos
-                                                        WHERE id = {numero_id};
-                                                        """)
-                                        row = cursor.fetchone()
-                                        nome, preco = row
                                         sleep(0.03)
-                                        print(f'Alimento: {nome}\nPreço: R${preco:.2f}')
+                                        print(f"Nome: {resultado_da_consulta['Nome']}")
+                                        sleep(0.03)
+                                        print(f"Preço atual: R${resultado_da_consulta['Preço']:.2f}")
                                     if erro_preco:
                                         sleep(0.03)
                                         print(erro_preco)
@@ -421,7 +417,7 @@ def listagem():
                                         sleep(0.03)
                                     
                                     try:
-                                        novo_preco = str(input('Novo preço: R$ ')).replace(',', '.')
+                                        novo_preco = str(input('Novo preço: R$')).replace(',', '.')
                                         
                                         if novo_preco == '':
                                             break
@@ -441,7 +437,8 @@ def listagem():
                                         sys.exit()
                                     
                                     else:
-                                        atualizar_produto(id=numero_id, preco=novo_preco)
+                                        atualizacao_confirmada = atualizar_produto(id=numero_id, preco=novo_preco)
+                                        print(atualizacao_confirmada)
                                         retornar('manualmente')
                                         break
                                 break
@@ -486,29 +483,20 @@ def listagem():
                                     sys.exit()
                                     
                                 else:
-                                    cursor.execute(f"""
-                                                   SELECT id FROM produtos WHERE id = {numero_id};
-                                                   """)
-                                    resultado = cursor.fetchone()
+                                    resultado_da_consulta = consultar_produto(numero_id)
                                     
-                                    if resultado is None:
-                                        erro_nome = f'\033[31mID {numero_id} não cadastrado\033[m'
+                                    if isinstance(resultado_da_consulta, str):
+                                        erro_nome = resultado_da_consulta
                                         continue
                                     erro_nome = ''
                             
                                 while True:
                                     estrutura_de_menu('\033[33mEDIÇÃO DE NOME\033[m')
                                     tela_nome()
-                                    if resultado is not None:
+                                    if isinstance(resultado_da_consulta, dict):
                                         print(f'ID: {numero_id}')
-                                        cursor.execute(f"""
-                                                        SELECT nome FROM produtos
-                                                        WHERE id = {numero_id};
-                                                        """)
-                                        row = cursor.fetchone()
-                                        nome, = row
                                         sleep(0.03)
-                                        print(f'Alimento: {nome}')
+                                        print(f"Nome atual: {resultado_da_consulta['Nome']}")
                                     if erro_nome:
                                         sleep(0.03)
                                         print(erro_nome)
@@ -525,7 +513,7 @@ def listagem():
                                             raise ValueError
                                     
                                     except ValueError:
-                                        erro_preco = '\033[31mDigite apenas caracteres alfabéticos!\033[m'
+                                        erro_nome = '\033[31mDigite apenas caracteres alfabéticos!\033[m'
                                         continue
 
                                     except KeyboardInterrupt:
@@ -534,12 +522,8 @@ def listagem():
                                         sys.exit()
                                     
                                     else:
-                                        cursor.execute(f"""
-                                                       UPDATE produtos SET nome = "{novo_nome}"
-                                                       WHERE id = {numero_id};""")
-                                        conexao.commit()
-                                        sleep(0.03)
-                                        print('\033[32mNome atualizado!\033[m')
+                                        atualizacao_confirmada = atualizar_produto(id=numero_id, nome=novo_nome)
+                                        print(atualizacao_confirmada)
                                         retornar('manualmente')
                                         break
                                 break
@@ -584,29 +568,22 @@ def listagem():
                                     sys.exit()
                                     
                                 else:
-                                    cursor.execute(f"""
-                                                   SELECT id FROM produtos WHERE id = {numero_id};
-                                                   """)
-                                    resultado = cursor.fetchone()
+                                    resultado_da_consulta = consultar_produto(numero_id)
                                     
-                                    if resultado is None:
-                                        erro_categoria = f'\033[31mID {numero_id} não cadastrado\033[m'
+                                    if isinstance(resultado_da_consulta, str):
+                                        erro_categoria = resultado_da_consulta
                                         continue
-                                    erro_nome = ''
+                                    erro_categoria = ''
                             
                                 while True:
                                     estrutura_de_menu('\033[33mEDIÇÃO DE CATEGORIA\033[m')
                                     tela_categoria()
-                                    if resultado is not None:
+                                    if isinstance(resultado_da_consulta, dict):
                                         print(f'ID: {numero_id}')
                                         sleep(0.03)
-                                        cursor.execute(f"""
-                                                        SELECT nome, categoria FROM produtos
-                                                        WHERE id = {numero_id};
-                                                        """)
-                                        row = cursor.fetchone()
-                                        nome, categoria = row
-                                        print(f'Alimento: {nome}\nCategoria: {categoria}')
+                                        print(f"Alimento: {resultado_da_consulta['Nome']}")
+                                        sleep(0.03)
+                                        print(f"Categoria atual: {resultado_da_consulta['Categoria']}")
                                         sleep(0.03)
                                     if erro_categoria:
                                         print(erro_categoria)
@@ -619,6 +596,9 @@ def listagem():
                                         if nova_categoria == '':
                                             break
                                     
+                                        if not nova_categoria.isalpha():
+                                            raise ValueError
+                                        
                                     except ValueError:
                                         erro_categoria = '\033[31mDigite apenas caracteres alfabéticos!\033[m'
 
@@ -628,12 +608,8 @@ def listagem():
                                         sys.exit()
                                     
                                     else:
-                                        cursor.execute(f"""
-                                                       UPDATE produtos SET categoria = "{nova_categoria}"
-                                                       WHERE id = {numero_id};""")
-                                        conexao.commit()
-                                        sleep(0.03)
-                                        print('\033[32mCategoria atualizada!\033[m')
+                                        atualizacao_confirmada = atualizar_produto(id=numero_id, categoria=nova_categoria)
+                                        print(atualizacao_confirmada)
                                         retornar('manualmente')
                                         break
                                 break
