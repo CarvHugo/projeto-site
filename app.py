@@ -13,5 +13,5 @@ CREATE TABLE IF NOT EXISTS produtos (
 );
 """)
 
-ops.listagem()
 conexao.close()
+ops.listagem()
