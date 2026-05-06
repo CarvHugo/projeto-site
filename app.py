@@ -4,13 +4,13 @@ import sqlite3
 from pydantic import BaseModel
 from typing import Optional
 
-from banco_de_dados import checa_existencia_da_tabela_produtos
+from banco_de_dados import garantir_tabela_produtos, buscar_produtos
 
 app = FastAPI()
 
 @app.on_event("startup")
-def funcao_de_inicializacao():
-    checa_existencia_da_tabela_produtos()
+def inicializar_banco():
+    garantir_tabela_produtos()
 
 app.add_middleware(
     CORSMiddleware,
@@ -34,11 +34,7 @@ class ProdutoPatch(BaseModel):
 
 @app.get("/produtos")
 async def listar_produtos():
-    conexao = sqlite3.connect("cardapio.db")
-    cursor = conexao.cursor()
-    
-    cursor.execute("SELECT id, nome, categoria, preco FROM produtos;")
-    produtos = cursor.fetchall()
+    produtos = buscar_produtos()
     
     lista_produtos = []
     

@@ -1,6 +1,6 @@
 import sqlite3
 
-def checa_existencia_da_tabela_produtos():
+def garantir_tabela_produtos():
     conexao = sqlite3.connect("cardapio.db")
     cursor = conexao.cursor()
 
@@ -15,3 +15,14 @@ def checa_existencia_da_tabela_produtos():
     
     conexao.commit()
     conexao.close()
+
+def buscar_produtos():
+    conexao = sqlite3.connect("cardapio.db")
+    cursor = conexao.cursor()
+    
+    cursor.execute("SELECT id, nome, categoria, preco FROM produtos;")
+    produtos = cursor.fetchall()
+    
+    conexao.close()
+    
+    return produtos
