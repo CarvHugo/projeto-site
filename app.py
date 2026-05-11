@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from typing import Optional
 import os
 
-from banco_de_dados import garantir_tabela_produtos, buscar_produtos
+from banco_de_dados import garantir_tabela_produtos, buscar_produtos, cadastra_produtos
 
 app = FastAPI()
 
@@ -59,21 +59,12 @@ async def listar_produtos():
 async def cadastro_de_produtos(produto: Produto, x_api_key: str = Header()):
     valida_api_key(x_api_key)
     
-    produto.nome = produto.nome.strip()
-    produto.categoria = produto.categoria.strip()
+    if not produto.nome or not produto.categoria or produto.preco <= 0:
+        raise HTTPException(status_code=422, detail="Ocorreu um erro com a validação dos dados! Digite dados válidos para cadastro.")
     
-    if produto.nome != "" and produto.categoria != "" and produto.preco > 0:
-        conexao = sqlite3.connect("cardapio.db")
-        cursor = conexao.cursor()
-        
-        cursor.execute("INSERT INTO produtos (nome, categoria, preco) VALUES (?, ?, ?)", (produto.nome, produto.categoria, produto.preco))
-
-        conexao.commit()
-        conexao.close()
-
-        return produto
+    produto = cadastra_produtos(produto.nome, produto.categoria, produto.preco)
     
-    raise HTTPException(status_code=422, detail="Ocorreu um erro com a validação dos dados! Digite dados válidos para cadastro.")
+    return produto
 
 @app.delete("/produtos/{id}")
 async def delecao_de_produtos(id: int, x_api_key: str = Header()):
