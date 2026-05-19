@@ -79,3 +79,34 @@ def consulta_produto(id):
         return dados
     
     return None
+
+def atualiza_produto(id, nome=None, categoria=None, preco=None):
+    conexao = sqlite3.connect("cardapio.db")
+    cursor = conexao.cursor()
+    
+    informacoes_dos_produtos = (nome, categoria, preco)
+    
+    if informacoes_dos_produtos.count(None) == 3:
+        conexao.close()
+        return None
+    
+    linhas_afetadas = 0
+    
+    variavel_da_query_sql = ["nome", "categoria", "preco"]
+        
+    for contador, dado in enumerate(informacoes_dos_produtos):
+        try:
+            if dado is not None:
+                cursor.execute("UPDATE produtos SET ? = ? WHERE id = ?", (variavel_da_query_sql[contador], dado, id))
+                linhas_afetadas += cursor.rowcount
+        
+        except:
+            continue
+    
+
+    if linhas_afetadas == 0:
+        conexao.close()
+        return 404
+    
+    conexao.commit()
+    conexao.close()

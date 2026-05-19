@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from typing import Optional
 import os
 
-from banco_de_dados import garantir_tabela_produtos, buscar_produtos, cadastra_produtos, tenta_delecao, consulta_produto
+from banco_de_dados import garantir_tabela_produtos, buscar_produtos, cadastra_produtos, tenta_delecao, consulta_produto, atualiza_produto
 
 app = FastAPI()
 
@@ -81,33 +81,14 @@ async def delecao_de_produtos(id: int, x_api_key: str = Header()):
 async def atualizar_produto(id: int, produtopatch: ProdutoPatch, x_api_key: str = Header()):
     valida_api_key(x_api_key)
     
-    conexao = sqlite3.connect("cardapio.db")
-    cursor = conexao.cursor()
+    atualizacao = atualiza_produto(id, produtopatch.nome, produtopatch.categoria, produtopatch.preco)
     
-    if (produtopatch.nome, produtopatch.categoria, produtopatch.preco).count(None) == 3:
-        conexao.close()
+    if atualizacao == None:
         raise HTTPException(status_code=422, detail="É necessário fornecer algum dado para atualização!")
     
-    linhas_afetadas = 0
-        
-    if produtopatch.nome is not None:
-        cursor.execute("UPDATE produtos SET nome = ? WHERE id = ?", (produtopatch.nome, id))
-        linhas_afetadas += cursor.rowcount
-            
-    if produtopatch.categoria is not None:
-        cursor.execute("UPDATE produtos SET categoria = ? WHERE id = ?", (produtopatch.categoria, id))
-        linhas_afetadas += cursor.rowcount
-            
-    if produtopatch.preco is not None:
-        cursor.execute("UPDATE produtos SET preco = ? WHERE id = ?", (produtopatch.preco, id))
-        linhas_afetadas += cursor.rowcount
-    
-    if linhas_afetadas == 0:
-        conexao.close()
+    if atualizacao == 404:
         raise HTTPException(status_code=404, detail=f"Erro! ID {id} não encontrado.")
-    
-    conexao.commit()
-    conexao.close()
+
     
 @app.get("/produtos/{id}")
 async def consultar_produto(id: int):
