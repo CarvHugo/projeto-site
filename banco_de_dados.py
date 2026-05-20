@@ -97,16 +97,19 @@ def atualiza_produto(id, nome=None, categoria=None, preco=None):
     for contador, dado in enumerate(informacoes_dos_produtos):
         try:
             if dado is not None:
-                cursor.execute("UPDATE produtos SET ? = ? WHERE id = ?", (variavel_da_query_sql[contador], dado, id))
+                cursor.execute(f"UPDATE produtos SET {variavel_da_query_sql[contador]} = ? WHERE id = ?", (dado, id))
                 linhas_afetadas += cursor.rowcount
         
         except:
             continue
-    
 
     if linhas_afetadas == 0:
         conexao.close()
-        return 404
+        return False
     
     conexao.commit()
     conexao.close()
+    
+    return True
+    
+    

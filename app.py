@@ -1,6 +1,5 @@
 from fastapi import FastAPI, HTTPException, Header
 from fastapi.middleware.cors import CORSMiddleware
-import sqlite3
 from pydantic import BaseModel
 from typing import Optional
 import os
@@ -86,7 +85,7 @@ async def atualizar_produto(id: int, produtopatch: ProdutoPatch, x_api_key: str 
     if atualizacao == None:
         raise HTTPException(status_code=422, detail="É necessário fornecer algum dado para atualização!")
     
-    if atualizacao == 404:
+    if atualizacao == False:
         raise HTTPException(status_code=404, detail=f"Erro! ID {id} não encontrado.")
 
     
